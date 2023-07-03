@@ -91,10 +91,9 @@ nrow(corrigendums)
 
 # I checked the github https://github.com/massimoaria/pubmedR and I think other people also miss 1 paper
 # I reproduced the error by changing the year to 2021 and confirming that the last article is missed again
-# Suggest we raise an issue on the github but ignore for now as this one article wouldn't be eligible 
-# Assuming we use pub issue date, rather than the epub date 
-
+# Suggest we raise an issue on the github but ignore for now as this one article wouldn't be eligible as pub date in 23
 # exclude journal with an epub date after the date cut-off 
+
 all_pubs <- all_pubs %>% 
   filter(YEAR %in% c("2017", "2018", "2019", "2020", "2021", "2022"))
 
@@ -106,10 +105,9 @@ filename <- paste0(path, "/data/all_pubs.csv")
 write_csv(all_pubs, file = filename)
 
 # 3. ASSIGN EFFORT  -------------------------------------------------------
-# assign these articles randomly between the two of us using metagear 
+# assign these articles randomly 
 
 # split the references between the two reviewers 
-# this adds 3 columns needed to split the pubs out 
 assigned_pubs <- effort_initialize(all_pubs)
 names(assigned_pubs)
 
