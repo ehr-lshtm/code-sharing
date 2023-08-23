@@ -1,13 +1,11 @@
 
 # SCRIPT INFORMATION 
 # ------------------------------------------------
-# script: 
-# author: 
-# description: 
-#
-# dependencies: 
-#
-# outputs: 
+# script: screen_publications
+# author: a schultze
+# description: this program illustrates how we screened the pubs using metagear
+# the screening itself was manual, and saved locally 
+# the screened data are uploaded to Github for reference so screening decisions can be tracked
 #
 # ------------------------------------------------
 # 0. HOUSEKEEPING --------------------------------
@@ -37,6 +35,4 @@ abstract_screener(file = paste0(data_path, effort_file),
 # note: this launches a graphical GUI which enables abstract screening 
 # note: reason for exclusion not recorded, but outside of scope of our project 
 # results are saved to a csv locally 
-# these should be merged, stats summarised, those assessed as YES OR MAYBE progressed to full-text screen/extract 
-
 
