@@ -8,15 +8,15 @@ The protocol can be found in the docs folder. The data and code which underlie o
 
 You can find all code used in the 'R' folder. The following scripts were used in the screening stage: 
 
-1. identify_publications.R
-2. screen_publications.R
+1. R/identify_publications.R
+2. R/screen_publications.R
 
 The package we used to allocate the screening (`{metagear}`) produces two csvs with allocated PMIDs beginning with the word 'effort'. Screening is manual, and we provide the finalised effort files for reference in the data folder. After screening was completed, we conducted manual data extraction as described in our protocol, with data entered into a google form. The raw data downloaded from the google form can be found in the file final_results.csv. 
 
 ## Analysis 
 We then cleaned the data and generated the results using the following scripts: 
 
-1. data_cleaning.R
+1. R/data_cleaning.R
 2. preliminary_results_icpe.Rmd
 
 The data_cleaning.R file completes basic cleaning of the variables which results in a clean dataset (clean_data.csv). 
