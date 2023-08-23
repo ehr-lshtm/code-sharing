@@ -18,11 +18,10 @@ path <- getwd()
 data_path <- paste0(path, "/data")
 
 # 1. READ IN DATA  --------------------------------------------------------
-results_filename <- paste0(path, "/data/preliminary_results.csv")
+results_filename <- paste0(path, "/data/final_results.csv")
 results <- read_csv(results_filename, show_col_types = F)
 
 # 2. CLEAN VAR NAMES -----------------------------------------------------
-
 results <- results %>% 
   clean_names() 
 
@@ -61,13 +60,7 @@ clean_results <- results %>%
 check_dupes <- get_dupes(clean_results, pmid) 
 # two duplicates, likely accidentally duplicated extraction 
 
-# noticed a data entry error for one of the papers, correct 
-clean_results <- clean_results %>% 
-  mutate(affiliation = case_when(
-    pmid == 35297128 ~ "Academic",
-    TRUE ~ affiliation)) 
-
-# keep the first row of duplicates (check that this is what you want to do!)
+# keep the first row of duplicates 
 clean_results <- clean_results %>% 
   distinct(pmid, .keep_all = TRUE)
 
@@ -101,23 +94,48 @@ all_results <- all_results %>%
       TRUE ~ FALSE) 
   ) 
 
-
 # FLOWCHART ---------------------------------------------------------------
-attrition <- visR::get_attrition(all_results,
-                                 criteria_descriptions = c("1. Code sharing pootentially possible (abstract)", 
-                                                           "2. Code sharing possible (full text)"),
-                                 criteria_conditions   = c("!is.na(all_results$timestamp)",
+
+# Need to merge in effort files
+anna_screen <- paste0(path, "/data/effort_Anna.csv")
+effort_anna <- read_csv(anna_screen, show_col_types = F)
+
+john_screen <- paste0(path, "/data/effort_John.csv")
+effort_john <- read_csv(john_screen, show_col_types = F)
+
+effort <- rbind(effort_anna, effort_john)
+
+effort <- effort %>% 
+  select(PMID, INCLUDE, REVIEWERS) %>% 
+  mutate(full_screen = case_when(
+    INCLUDE == "NO" ~ FALSE, 
+    TRUE ~ TRUE 
+  )) %>% 
+  rename(pmid = PMID)
+
+flowchart <- all_results %>% 
+  left_join(effort, by = "pmid", keep = TRUE) %>% 
+  select(-pmid.y) %>% 
+  rename(pmid = pmid.x)
+
+attrition <- visR::get_attrition(flowchart,
+                                 criteria_descriptions = c("1. Code sharing possible (abstract)", 
+                                                           "2. Data extraction completed", 
+                                                           "3. Code sharing possible (full) "),
+                                 criteria_conditions   = c("flowchart$full_screen", 
+                                                           "!is.na(all_results$timestamp)",
                                                            "all_results$include_code_sharing & all_results$include_article_type"),
                                  subject_column_name   = "pmid")
 
-attrition$Complement <- c("NA", "Abstract only, letter/commentary, or no data analysis", "Letter/commentary, or no data analysis")
+attrition$Complement <- c("NA", "Abstract only, letter/commentary, or no data analysis","Data extraction pending", "Letter/commentary, or no data analysis")
 
+png("results/flowchart.png", width = 1500, height = 1000)
 attrition %>%
-  visR::visr("Criteria", "Remaining N", "Complement")
+  visR::visr("Criteria", "Remaining N", "Complement", font_size = 31)
+dev.off()
 
 # apply the criteria 
-
-clean_results <- all_results %>% 
+clean_results <- flowchart %>% 
   filter(!is.na(timestamp)) %>% 
   filter(include_code_sharing & include_article_type)
 
@@ -130,7 +148,20 @@ clean_results <- clean_results %>%
 # investigate missingess 
 sapply(clean_results, function(x) sum(is.na(x)))
 
-# manually complement data collection to ensure missingness in zero in all variables 
+# missingness v. low, data extraction errors 
+# assume missing is No for interim results generation
+# QC to be implemented post ICPE to manually supplement missing data 
+# missningess slightly higher for 'country', because methodological studies/reviews 
+
+clean_results <- clean_results %>% 
+  mutate(article_type_pds = ifelse(is.na(article_type_pds), "Original Article", article_type_pds)) %>%
+  mutate(simulation = ifelse(is.na(simulation), "No", simulation), 
+         covid = ifelse(is.na(covid), "No", covid), 
+         industry_funder = ifelse(is.na(industry_funder), "No", industry_funder), 
+         language = ifelse(is.na(language), "No", language), 
+         preprint = ifelse(is.na(preprint), "No", preprint), 
+         data_sharing = ifelse(is.na(data_sharing), "No", data_sharing), 
+         codelist_sharing = ifelse(is.na(codelist_sharing), "No", codelist_sharing)) 
 
 # 5. VARIABLE RECORDING ---------------------------------------------------
 
@@ -148,7 +179,7 @@ clean_results <- clean_results %>%
     str_detect(article_type_aim, "Validation") ~ "Validation", 
     str_detect(article_type_aim, "Review") ~ "Review", 
     str_detect(article_type_aim, "Editorial") ~ "Other", 
-    str_detect(article_type_aim, "Guidance") ~ "Other", 
+    str_detect(article_type_aim, "Guidance") ~ "Methodological", 
     str_detect(article_type_aim, "Data") ~ "Other", 
     TRUE ~ "Applied")) %>% 
   # simulation study? 
@@ -222,7 +253,10 @@ clean_results <- clean_results %>%
 clean_results <- clean_results %>% 
   mutate(country = str_replace(country, "United States", "USA"), 
          country = str_replace(country, "nited States", "USA"), 
+         country = str_replace(country, "us", "USA"), 
          country = str_replace(country, "US", "USA"), 
+         country = str_replace(country, "USAA", "USA"),
+         country = str_replace(country, "Australian", "Australia"), 
          country = str_replace(country, "the Netherlands", "Netherlands"), 
          country = str_replace(country, "The Netherlands", "Netherlands"), 
          country = str_replace(country, "Malaysian", "Malaysia"), 
@@ -245,19 +279,26 @@ clean_results <- clean_results %>%
 clean_results <- clean_results %>% 
   # code sharing
   mutate(shared_code = case_when(str_detect(shared_code, "Yes") ~ "Yes", TRUE ~ "No")) %>% 
-  # code accessibility,
-  # data entry error for one paper which shared code resulted in accessibility being NA, but it should be Yes 
+  # code accessibility
   mutate(accessible_code = case_when(str_detect(accessible_code, "Yes") ~ "Yes", 
-                                     TRUE ~ "No"),
-         accessible_code = case_when(pmid == 28474439 ~ "Yes", 
-                                     TRUE ~ accessible_code)) %>% 
+                                     TRUE ~ "No")) %>% 
   # combine these two into results variable 
   mutate(available_code = case_when(shared_code == "Yes" & accessible_code == "Yes" ~ TRUE, 
                                     TRUE ~ FALSE)) 
 # other details and ORPs 
 clean_results <- clean_results %>% 
-  mutate(license = ifelse(str_detect(license, "Not possible"), NA, license)) 
+  mutate(license = ifelse(str_detect(license, "Not possible"), NA, license)) %>% 
   mutate(preprint = ifelse(is.na(preprint), "No", preprint)) %>% 
-  mutate(guideline = ifelse(str_detect(guideline, "Not applicable"), "No", guideline)) 
-
+  mutate(guideline = ifelse(str_detect(guideline, "Not applicable"), "No", guideline)) %>% 
+  mutate(guideline = ifelse(str_detect(guideline_type, "ood") & !is.na(guideline_type), "No", guideline)) %>% 
+  mutate(codelist_sharing = case_when(str_detect(codelist_sharing, "All") ~ "At least one", 
+                                      TRUE ~ codelist_sharing)) 
+# fix the demographics 
+clean_results <- clean_results %>% 
+  rename(year = YEAR) %>% 
+  mutate(year = as.numeric(year))
+    
+# Save file
+clean_filename <- paste0(path, "/data/clean_results.csv")
+write_csv(clean_results, clean_filename)
 
