@@ -22,6 +22,6 @@ We then cleaned the data and generated the results using the following scripts:
 The data_cleaning.R file completes basic cleaning of the variables which results in a clean dataset (clean_data.csv). 
 
 ## Re-using this data 
-As this is a work in progress, we want to flag that we have not yet developed complete metadata describing the variables and note that this is currently **not a locked dataset**, as we are yet to complete final QC of the data (schedueled Sept 2023). Our intention is to make the cleaned dataset avaialble under an MIT license with associated metadata during Q3 2023. 
+As this is a work in progress, we want to flag that we have not yet developed complete metadata describing the variables and note that this is currently **not a locked dataset**, as we are yet to complete final QC of the data (schedueled Sept 2023). Our intention is to make the cleaned dataset avaialble under an MIT license with associated metadata during Q3 2023, at the same time as making a draft paper available to ISPE members for comment and feedback. Please contact us if you want to use the data ahead of time so we can flag any limitations and how different variables should be interpreted.  
 
 Issues and pull requests are welcome, or email us any questions or feedback! 
