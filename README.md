@@ -2,7 +2,7 @@
 
 This repo contains the code and data for our review of code sharing and other open science indicators in the journal pharmacoepidemiology and drug safety. 
 
-The protocol can be found in the docs folder. 
+The protocol can be found in the docs folder. The data and code which underlie our ICPE 2023 presentation can be found in the latest release: [![DOI](https://zenodo.org/badge/641333677.svg)](https://zenodo.org/badge/latestdoi/641333677)
 
 ## Screening 
 
