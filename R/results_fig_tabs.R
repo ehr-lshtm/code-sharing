@@ -385,3 +385,36 @@ tb5 <- CreateTableOne(data = code_shar_orp, strata = "Code Shared",test = FALSE)
 k4 <- print(tb5$CatTable)
 
 write.csv(k4, file = "results/tabs/code_sharing_by_orp.csv")
+
+# 4. DESCRIPTIVES ---------------------------------------
+code_shared <- nrow(results %>% filter(available_code))
+
+# Code location
+code_location_desc <- results %>% 
+  filter(available_code) %>% 
+  select(code_location) %>% 
+  separate_rows(code_location, sep = ",") %>% 
+  mutate(code_location = str_trim(code_location)) %>% 
+  mutate(code_location = case_when(str_detect(code_location, "entinel") ~ "Sentinel", 
+                                   str_detect(code_location, "Personal") ~ "Personal Webpage", 
+                                   str_detect(code_location, "Pseudocode") ~ "Supplementary materials (doc or pdf)",
+                                   str_detect(code_location,"equest") ~ 	"Available on request", 
+                                   str_detect(code_location,"dataverse") ~ "Available on request",  
+                                   TRUE ~ code_location)) %>% 
+  mutate(code_location = case_when(str_detect(code_location, "doc") ~ "Supplementary doc or pdf", 
+                                   str_detect(code_location, "program") ~ "Supplementary programming files",
+                                   TRUE ~ code_location)) %>% 
+  group_by(code_location) %>% 
+  count() %>% 
+  mutate(perc = 100*n/code_shared)
+
+# Licenses
+
+license <- results %>% 
+  filter(available_code) %>% 
+  filter(license == "Yes") %>% 
+  select(license_type) %>%
+  mutate(license_type = case_when(str_detect(license_type, "GP") | str_detect(license_type, "GLP v3") ~ "GPL v3.0 (https://www.gnu.org/licenses/gpl-3.0.txt)", 
+                                  TRUE ~ license_type)) %>% 
+  group_by(license_type) %>% 
+  count()
