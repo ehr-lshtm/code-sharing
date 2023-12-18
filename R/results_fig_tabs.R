@@ -124,7 +124,7 @@ share2 <- orp_over_time %>%
   theme_classic() + 
   labs(y = "Percentage of Codelist Sharing (%)", 
        x = "Publication Year") +
-  scale_y_continuous(limits=c(67,80),breaks=seq(65,80,5)) 
+  scale_y_continuous(limits=c(0,80),breaks=seq(0,80,20)) 
 
 share3 <- orp_over_time %>% 
   filter(label == "Preregistration") %>%
