@@ -418,3 +418,68 @@ license <- results %>%
                                   TRUE ~ license_type)) %>% 
   group_by(license_type) %>% 
   count()
+
+# Table 3b descriptives
+# article type
+article_type_row <- results %>% 
+  group_by( article_aim_clean, available_code) %>% 
+  count() %>% 
+  ungroup() %>%
+  group_by(article_aim_clean) %>% 
+  mutate(tot = sum(n), per = n/tot*100) %>% 
+  filter(available_code) 
+ 
+# simulation
+simulation_row <- results %>% 
+  group_by( simulation, available_code) %>% 
+  count() %>% 
+  ungroup() %>%
+  group_by(simulation) %>% 
+  mutate(tot = sum(n), per = n/tot*100) %>% 
+  filter(available_code) 
+
+# covid
+covid_row <- results %>% 
+  group_by( covid, available_code) %>% 
+  count() %>% 
+  ungroup() %>%
+  group_by(covid) %>% 
+  mutate(tot = sum(n), per = n/tot*100) %>% 
+  filter(available_code) 
+
+# reported_industry_funds
+reported_industry_funds_row <- results %>% 
+  group_by( reported_industry_funds, available_code) %>% 
+  count() %>% 
+  ungroup() %>%
+  group_by(reported_industry_funds) %>% 
+  mutate(tot = sum(n), per = n/tot*100) %>% 
+  filter(available_code) 
+
+#  language_stata
+language_stata_row <- results %>% 
+  group_by( language_stata, available_code) %>% 
+  count() %>% 
+  ungroup() %>%
+  group_by( language_stata) %>% 
+  mutate(tot = sum(n), per = n/tot*100) %>% 
+  filter(available_code) 
+
+# language_r
+language_r_row <- results %>% 
+  group_by(language_r, available_code) %>% 
+  count() %>% 
+  ungroup() %>%
+  group_by(language_r) %>% 
+  mutate(tot = sum(n), per = n/tot*100) %>% 
+  filter(available_code) 
+
+
+# language_sas
+language_sas_row <- results %>% 
+  group_by( language_sas, available_code) %>% 
+  count() %>% 
+  ungroup() %>%
+  group_by(language_sas) %>% 
+  mutate(tot = sum(n), per = n/tot*100) %>% 
+  filter(available_code) 
