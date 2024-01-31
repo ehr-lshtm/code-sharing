@@ -14,14 +14,9 @@ You can find all code used in the 'R' folder. The following scripts were used in
 The package we used to allocate the screening (`{metagear}`) produces two csvs with allocated PMIDs beginning with the word 'effort'. Screening is manual, and we provide the finalised effort files for reference in the data folder. After screening was completed, we conducted manual data extraction as described in our protocol, with data entered into a google form. The raw data downloaded from the google form can be found in the file final_results.csv. 
 
 ## Analysis 
-We then cleaned the data and generated the results using the following scripts: 
-
-1. R/data_cleaning.R
-2. preliminary_results_icpe.Rmd
-
-The data_cleaning.R file completes basic cleaning of the variables which results in a clean dataset (clean_data.csv). 
+We then cleaned the data and generated the results using the scripts in the R folder. The data_cleaning.R file completes basic cleaning of the variables which results in a clean dataset (clean_data.csv). 
 
 ## Re-using this data 
-As this is a work in progress, we want to flag that we have not yet developed complete metadata describing the variables and note that this is currently **not a locked dataset**, as we are yet to complete final QC of the data (schedueled Sept 2023). Our intention is to make the cleaned dataset avaialble under an MIT license with associated metadata during Q3 2023, at the same time as making a draft paper available to ISPE members for comment and feedback. Please contact us if you want to use the data ahead of time so we can flag any limitations and how different variables should be interpreted.  
+The data is available under an MIT license, but we recommend that you email us (anna.schultze@lshtm.ac.uk, john.tazare1@lshtm.ac.uk) so that we can help you understand the raw data and the purpose of each variable. We have not yet developed complete metadata describing the variables. The draft paper is available to ISPE members for comment and feedback. 
 
 Issues and pull requests are welcome, or email us any questions or feedback! 
