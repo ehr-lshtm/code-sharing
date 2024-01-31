@@ -120,15 +120,14 @@ flowchart <- all_results %>%
 
 attrition <- visR::get_attrition(flowchart,
                                  criteria_descriptions = c("1. Code sharing possible (abstract)", 
-                                                           "2. Data extraction completed", 
-                                                           "3. Code sharing possible (full) "),
+                                                           "2. Code sharing possible (full)"
+                                                          ),
                                  criteria_conditions   = c("flowchart$full_screen", 
-                                                           "!is.na(all_results$timestamp)",
                                                            "all_results$include_code_sharing & all_results$include_article_type"),
                                  subject_column_name   = "pmid")
 
-attrition$Complement <- c("NA", "Abstract only, letter/commentary, or no data analysis","Data extraction pending", "Letter/commentary, or no data analysis")
-
+attrition$Complement <- c("NA", "Abstract only, letter/commentary, or no data analysis", "Letter/commentary, or no data analysis")
+attrition$Criteria[1] <- "Records identified through database search"
 png("results/flowchart.png", width = 1500, height = 1000)
 attrition %>%
   visR::visr("Criteria", "Remaining N", "Complement", font_size = 31)
