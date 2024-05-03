@@ -225,6 +225,7 @@ clean_results <- clean_results %>%
 # first, string cleaning of options entered 
 clean_results <- clean_results %>%
   mutate(language = str_replace(language,"A platform, specify in other, ", "")) %>% 
+  mutate(language = str_replace(language,"SAS, SAS", "SAS")) %>% 
   mutate(language = case_when(
     str_detect(language, "CIDA") ~ "Sentinel tools", 
     str_detect(language, "Sentinel") ~ "Sentinel tools", 
@@ -271,15 +272,15 @@ clean_results <- clean_results %>%
 clean_results <- clean_results %>% 
   mutate(country = str_replace(country, "United States", "USA"), 
          country = str_replace(country, "nited States", "USA"), 
-         country = str_replace(country, "us", "USA"), 
-         country = str_replace(country, "US", "USA"), 
+         country = str_replace(country, "\\bus\\b", "USA"), 
+         country = str_replace(country, "\\bUS\\b", "USA"), 
          country = str_replace(country, "USAA", "USA"),
          country = str_replace(country, "Australian", "Australia"), 
          country = str_replace(country, "the Netherlands", "Netherlands"), 
          country = str_replace(country, "The Netherlands", "Netherlands"), 
          country = str_replace(country, "Malaysian", "Malaysia"), 
          country = str_replace(country, "Finalnd", "Finland"), 
-         country = str_replace(country, "ustria", "Austria"), 
+         country = str_replace(country, "\\bustria\\b", "Austria"), 
          country = str_replace(country, "United Kingdom", "UK"), 
          country = str_replace(country, "the UK", "UK"), 
          country = str_replace(country, "European Union", "EU"), 
