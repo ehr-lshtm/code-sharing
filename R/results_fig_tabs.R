@@ -397,7 +397,7 @@ protocol_sharing_sharing_over_time <- other_orps %>%
   rename(freq =  protocol_sharing_rep)
 
 orp_over_time <- rbind(data_sharing_over_time, codelist_sharing_over_time, guideline_sharing_over_time, protocol_sharing_sharing_over_time)  %>%
-  order(label, year, total_pub, freq, perc)
+  select(label, year, total_pub, freq, perc)
 
 write.csv(orp_over_time, file = "results/tabs/orp_characteristics_over_time.csv")
 
