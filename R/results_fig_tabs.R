@@ -66,6 +66,8 @@ sharing_over_time <- results %>%
   summarise(total_pub = sum(n), code_share=sum(available_code), perc = round(100*code_share/total_pub, 2)) %>% 
   ungroup()
 
+tot_code_share <- sum(sharing_over_time$code_share)
+
 # export as csv
 write.csv(sharing_over_time, file = "results/tabs/actual_code_sharing_over_time.csv")
 
@@ -202,7 +204,8 @@ code_location <- results %>%
                                    TRUE ~ code_location)) %>% 
   group_by(code_location) %>% 
   tally() %>% 
-  arrange((n))
+  arrange((n)) %>% 
+  mutate(n/tot_code_share*100)
 
 # set the order of the factors to be the count 
 code_location$code_location <- factor(code_location$code_location, levels=code_location$code_location)  
