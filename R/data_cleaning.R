@@ -1,4 +1,3 @@
-
 # SCRIPT INFORMATION 
 # ------------------------------------------------
 # script: data_cleaning.R 
@@ -222,6 +221,26 @@ clean_results <- clean_results %>%
 
 # 60+ different answers to language, cannot display each one separately 
 # have to do some kind of grouping to create the main options 
+
+# first, string cleaning of options entered 
+clean_results <- clean_results %>%
+  mutate(language = str_replace(language,"A platform, specify in other, ", "")) %>% 
+  mutate(language = case_when(
+    str_detect(language, "CIDA") ~ "Sentinel tools", 
+    str_detect(language, "Sentinel") ~ "Sentinel tools", 
+    str_detect(language, "entinel") ~ "Sentinel tools", 
+    str_detect(language, "Joinpoint") ~ "Joinpoint Regression", 
+    str_detect(language, "Jointpoint") ~ "Joinpoint Regression", 
+    str_detect(language, "OpenEpi") ~ "OpenEpi", 
+    str_detect(language, "JMP") ~ "JMP", 
+    str_detect(language, "\\bNo\\b") ~ "None/Not Specified", 
+    str_detect(language, "Stats Direct") ~ "StatsDirect", 
+    str_detect(language, "VigiRank") ~ "VigiRank", 
+    str_detect(language, "GraphPad") ~ "Graphpad Prism", 
+    TRUE ~ language)) %>% 
+  mutate(language = str_replace(language,"A platform, specify in other, ", "")) %>%
+  mutate(language = str_replace(language,"A platform, specify in other", "")) 
+
 clean_results <- clean_results %>% 
   mutate(language_r = case_when(
   str_detect(language, '\\bR\\b') ~ "Yes", 
@@ -296,7 +315,32 @@ clean_results <- clean_results %>%
 clean_results <- clean_results %>% 
   rename(year = YEAR) %>% 
   mutate(year = as.numeric(year))
-    
+
+# QC of code sharing  -----------------------------------------------------
+# At peer review: requested additional QC of code sharing papers 
+# we therefore manually QC'd all papers flagged as sharing code and corrected any potential errors
+
+clean_results <- clean_results %>% 
+  # did reference a specific and named code module, but the link is broken
+  mutate(shared_code = case_when(doi == "10.1002/pds.5168" ~ "Yes", 
+         TRUE ~ shared_code)) %>% 
+  # also referenced a specific and named code module, but the link is broken
+  mutate(shared_code = case_when(doi == "10.1002/pds.4375" ~ "Yes", 
+                                 TRUE ~ shared_code)) %>% 
+  # on review, reclassified two papers as "referencing open source code", rather than "code sharing" 
+  mutate(shared_code = case_when(doi == "10.1002/pds.4392" ~ "No", 
+                                 TRUE ~ shared_code), 
+         accessible_code = case_when(doi == "10.1002/pds.4392" ~ "No", 
+                                 TRUE ~ accessible_code),
+         available_code = case_when(doi == "10.1002/pds.4392" ~ FALSE, 
+                                 TRUE ~ available_code)) %>% 
+  mutate(shared_code = case_when(doi == "10.1002/pds.4343" ~ "No", 
+                                 TRUE ~ shared_code), 
+         accessible_code = case_when(doi == "10.1002/pds.4343" ~ "No", 
+                                 TRUE ~ accessible_code),
+         available_code = case_when(doi == "10.1002/pds.4343" ~ FALSE, 
+                                 TRUE ~ available_code))
+
 # Save file
 clean_filename <- paste0(path, "/data/clean_results.csv")
 write_csv(clean_results, clean_filename)

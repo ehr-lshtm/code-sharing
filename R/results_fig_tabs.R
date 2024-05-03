@@ -11,11 +11,21 @@
 if (!require("pacman")) install.packages("pacman")
 library(pacman)
 
-p_load(tidyverse, janitor, readr, lubridate, maps, visR, gt, RColorBrewer, tableone, kableExtra, cowplot)
+p_load(tidyverse, janitor, readr, lubridate, maps, visR, stringr, 
+       gt, RColorBrewer, tableone, kableExtra, cowplot)
 
 # homepath (assumes an R project in the appropriate parent folder)
 path <- getwd() 
 data_path <- paste0(path, "/data")
+
+# create subdir for exporting tables, if it does not already exist
+tab_path <- paste0(path, "/results/tabs")
+
+if (!dir.exists(tab_path)){
+  dir.create(tab_path)
+} else {
+  print("export directory already exists")
+}
 
 # 1. READ IN DATA  --------------------------------------------------------
 results_filename <- paste0(path, "/data/clean_results.csv")
@@ -23,19 +33,20 @@ results <- read_csv(results_filename, show_col_types = F)
 
 # 2. FIGURES ---------------------------------------
 
-## Code sharing over time 
-sharing_over_time <- results %>% 
+## Declared code sharing over time 
+declared_sharing_over_time <- results %>% 
   group_by(year, shared_code) %>% 
   count() %>% 
   ungroup() %>% 
   mutate(shared_code = ifelse(shared_code == "Yes", n, 0) ) %>% 
   group_by(year) %>% 
-  summarise(total_pub = sum(n), code_share=sum(shared_code), perc = round(100*code_share/total_pub, 2))
+  summarise(total_pub = sum(n), code_share=sum(shared_code), perc = round(100*code_share/total_pub, 2)) %>% 
+  ungroup()
 
 # export as csv
-write.csv(sharing_over_time, file = "results/tabs/code_sharing_over_time.csv")
+write.csv(declared_sharing_over_time, file = "results/tabs/declared_code_sharing_over_time.csv")
 
-ggplot(data = sharing_over_time, aes(x=year, y=perc)) + 
+ggplot(data = declared_sharing_over_time, aes(x=year, y=perc)) + 
   geom_line(color = "cornflowerblue") +
   geom_point(color = "cornflowerblue") +
   theme_classic() + 
@@ -43,7 +54,30 @@ ggplot(data = sharing_over_time, aes(x=year, y=perc)) +
   labs(y= "Percentage of code sharing (%)") + 
   ylim(0,15)
 
-ggsave("results/figs/code_sharing_over_time.png", width = 15, height = 10, units = "cm")
+ggsave("results/figs/declared_code_sharing_over_time.png", width = 15, height = 10, units = "cm")
+
+## Actual code sharing over time 
+sharing_over_time <- results %>% 
+  group_by(year, available_code) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(available_code = ifelse(available_code == TRUE, n, 0) ) %>% 
+  group_by(year) %>% 
+  summarise(total_pub = sum(n), code_share=sum(available_code), perc = round(100*code_share/total_pub, 2)) %>% 
+  ungroup()
+
+# export as csv
+write.csv(sharing_over_time, file = "results/tabs/actual_code_sharing_over_time.csv")
+
+ggplot(data = sharing_over_time, aes(x=year, y=perc)) + 
+  geom_line(color = "cornflowerblue") +
+  geom_point(color = "cornflowerblue") +
+  theme_classic() + 
+  labs(x ="Publication Year") +
+  labs(y= "Percentage of code sharing with code accessible (%)") + 
+  ylim(0,15)
+
+ggsave("results/figs/actual_code_sharing_over_time.png", width = 15, height = 10, units = "cm")
 
 ## Open science over time 
 other_orps <- results %>% 
@@ -161,7 +195,7 @@ code_location <- results %>%
                                    str_detect(code_location, "Personal") ~ "Personal Webpage", 
                                    str_detect(code_location, "Pseudocode") ~ "Supplementary materials (doc or pdf)",
                                    str_detect(code_location,"equest") ~ 	"Available on request", 
-                                   str_detect(code_location,"dataverse") ~ "Available on request",  
+                                   str_detect(code_location,"dataverse") ~ "Harvard Dataverse",  
                                    TRUE ~ code_location)) %>% 
   mutate(code_location = case_when(str_detect(code_location, "doc") ~ "Supplementary doc or pdf", 
                                    str_detect(code_location, "program") ~ "Supplementary programming files",
@@ -363,7 +397,7 @@ protocol_sharing_sharing_over_time <- other_orps %>%
   rename(freq =  protocol_sharing_rep)
 
 orp_over_time <- rbind(data_sharing_over_time, codelist_sharing_over_time, guideline_sharing_over_time, protocol_sharing_sharing_over_time)  %>%
-  order(label, year, total_pub, freq, perc)
+  select(label, year, total_pub, freq, perc)
 
 write.csv(orp_over_time, file = "results/tabs/orp_characteristics_over_time.csv")
 
@@ -483,3 +517,25 @@ language_sas_row <- results %>%
   group_by(language_sas) %>% 
   mutate(tot = sum(n), per = n/tot*100) %>% 
   filter(available_code) 
+
+
+# 5. POST PEER REVIEW: REQUESTED TABLES ----------------------------------------------
+
+# each individual language listed 
+language_all <- results %>% 
+  select(language) %>%
+  # put each instance into a separate row and count them
+  separate_rows(language, sep = ",") %>% 
+  separate_rows(language, sep = "\\band\\b") %>% 
+  # remove leading blanks 
+  mutate(language = trimws(language)) %>% 
+  drop_na() 
+
+  postreview_suptb <- CreateTableOne(data = language_all)
+  # Prep for export
+  postreview_suptb1 <- print(postreview_suptb$CatTable)
+
+  # Export 
+  write.csv(postreview_suptb1, file = "results/tabs/all_languages.csv")
+
+  
