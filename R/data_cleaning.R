@@ -1,3 +1,4 @@
+
 # SCRIPT INFORMATION 
 # ------------------------------------------------
 # script: data_cleaning.R 
@@ -80,8 +81,8 @@ all_results <- source_pubs %>%
 # INCLUSION CRITERIA 
 all_results <- all_results %>% 
   mutate(code_sharing_possible = case_when(
-           str_detect(code_sharing_possible, "Yes") ~ "Yes", 
-           TRUE ~ code_sharing_possible)) %>% 
+    str_detect(code_sharing_possible, "Yes") ~ "Yes", 
+    TRUE ~ code_sharing_possible)) %>% 
   # create logical variables to check eligiblity 
   # based on two criteria, could code be shared and is the article type eligible 
   mutate(include_article_type = case_when(
@@ -120,7 +121,7 @@ flowchart <- all_results %>%
 attrition <- visR::get_attrition(flowchart,
                                  criteria_descriptions = c("1. Code sharing possible (abstract)", 
                                                            "2. Code sharing possible (full)"
-                                                          ),
+                                 ),
                                  criteria_conditions   = c("flowchart$full_screen", 
                                                            "all_results$include_code_sharing & all_results$include_article_type"),
                                  subject_column_name   = "pmid")
@@ -225,6 +226,7 @@ clean_results <- clean_results %>%
 # first, string cleaning of options entered 
 clean_results <- clean_results %>%
   mutate(language = str_replace(language,"A platform, specify in other, ", "")) %>% 
+  mutate(language = str_replace(language,"SAS, SAS", "SAS")) %>% 
   mutate(language = case_when(
     str_detect(language, "CIDA") ~ "Sentinel tools", 
     str_detect(language, "Sentinel") ~ "Sentinel tools", 
@@ -243,43 +245,43 @@ clean_results <- clean_results %>%
 
 clean_results <- clean_results %>% 
   mutate(language_r = case_when(
-  str_detect(language, '\\bR\\b') ~ "Yes", 
-  TRUE ~ "No"), 
-  language_sas = case_when(
-    str_detect(language, '\\bSAS\\b') ~ "Yes", 
+    str_detect(language, '\\bR\\b') ~ "Yes", 
     TRUE ~ "No"), 
-  language_stata = case_when(
-    str_detect(language, '\\bStata\\b') ~ "Yes", 
-    TRUE ~ "No"),
-  language_spss = case_when(
-    str_detect(language, '\\bSPSS\\b') ~ "Yes",
-    TRUE ~ "No"),
-  language_excel = case_when(
-    str_detect(language, '\\bExcel\\b') ~ "Yes", 
-    TRUE ~ "No"),
-  language_python = case_when(
-    str_detect(language, '\\bPython\\b') ~ "Yes", 
-    TRUE ~ "No"),
-  language_sentinel = case_when(
-    str_detect(language, '\\bSentinel\\b') ~ "Yes", 
-    TRUE ~ "No"), 
-  language_none = case_when(
-    str_detect(language, '\\bNone\\b') ~ "Yes", 
-    TRUE ~ "No")) 
+    language_sas = case_when(
+      str_detect(language, '\\bSAS\\b') ~ "Yes", 
+      TRUE ~ "No"), 
+    language_stata = case_when(
+      str_detect(language, '\\bStata\\b') ~ "Yes", 
+      TRUE ~ "No"),
+    language_spss = case_when(
+      str_detect(language, '\\bSPSS\\b') ~ "Yes",
+      TRUE ~ "No"),
+    language_excel = case_when(
+      str_detect(language, '\\bExcel\\b') ~ "Yes", 
+      TRUE ~ "No"),
+    language_python = case_when(
+      str_detect(language, '\\bPython\\b') ~ "Yes", 
+      TRUE ~ "No"),
+    language_sentinel = case_when(
+      str_detect(language, '\\bSentinel\\b') ~ "Yes", 
+      TRUE ~ "No"), 
+    language_none = case_when(
+      str_detect(language, '\\bNone\\b') ~ "Yes", 
+      TRUE ~ "No")) 
 
 # countries
 clean_results <- clean_results %>% 
   mutate(country = str_replace(country, "United States", "USA"), 
          country = str_replace(country, "nited States", "USA"), 
-         country = str_replace(country, "us", "USA"), 
-         country = str_replace(country, "US", "USA"), 
+         country = str_replace(country, "\\bus\\b", "USA"), 
+         country = str_replace(country, "\\bUS\\b", "USA"), 
          country = str_replace(country, "USAA", "USA"),
          country = str_replace(country, "Australian", "Australia"), 
          country = str_replace(country, "the Netherlands", "Netherlands"), 
          country = str_replace(country, "The Netherlands", "Netherlands"), 
          country = str_replace(country, "Malaysian", "Malaysia"), 
          country = str_replace(country, "Finalnd", "Finland"), 
-         country = str_replace(country, "ustria", "Austria"), 
+         country = str_replace(country, "\\bustria\\b", "Austria"), 
          country = str_replace(country, "United Kingdom", "UK"), 
          country = str_replace(country, "the UK", "UK"), 
          country = str_replace(country, "European Union", "EU"), 
@@ -323,7 +325,7 @@ clean_results <- clean_results %>%
 clean_results <- clean_results %>% 
   # did reference a specific and named code module, but the link is broken
   mutate(shared_code = case_when(doi == "10.1002/pds.5168" ~ "Yes", 
-         TRUE ~ shared_code)) %>% 
+                                 TRUE ~ shared_code)) %>% 
   # also referenced a specific and named code module, but the link is broken
   mutate(shared_code = case_when(doi == "10.1002/pds.4375" ~ "Yes", 
                                  TRUE ~ shared_code)) %>% 
@@ -331,17 +333,16 @@ clean_results <- clean_results %>%
   mutate(shared_code = case_when(doi == "10.1002/pds.4392" ~ "No", 
                                  TRUE ~ shared_code), 
          accessible_code = case_when(doi == "10.1002/pds.4392" ~ "No", 
-                                 TRUE ~ accessible_code),
+                                     TRUE ~ accessible_code),
          available_code = case_when(doi == "10.1002/pds.4392" ~ FALSE, 
-                                 TRUE ~ available_code)) %>% 
+                                    TRUE ~ available_code)) %>% 
   mutate(shared_code = case_when(doi == "10.1002/pds.4343" ~ "No", 
                                  TRUE ~ shared_code), 
          accessible_code = case_when(doi == "10.1002/pds.4343" ~ "No", 
-                                 TRUE ~ accessible_code),
+                                     TRUE ~ accessible_code),
          available_code = case_when(doi == "10.1002/pds.4343" ~ FALSE, 
-                                 TRUE ~ available_code))
+                                    TRUE ~ available_code))
 
 # Save file
 clean_filename <- paste0(path, "/data/clean_results.csv")
 write_csv(clean_results, clean_filename)
-
