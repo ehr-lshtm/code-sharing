@@ -1,8 +1,8 @@
 # Sharing is caring? International Society of Pharmacoepidemiology review and recommendations for sharing programming code
-10.5281/zenodo.13152263
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13152263.svg)](https://doi.org/10.5281/zenodo.13152263)
 
-This repo contains the code and data for our review of code sharing and other open science indicators in the journal pharmacoepidemiology and drug safety. 
-The protocol can be found in the docs folder. The repository contains code and data to reproduce the results presented in our published paper, preprinted here: https://www.authorea.com/users/754945/articles/724813-sharing-is-caring-international-society-of-pharmacoepidemiology-review-and-recommendations-for-sharing-of-programming-code. 
+This repository contains the code and data for our review of code sharing and other open science indicators in the journal *Pharmacoepidemiology and Drug Safety*. 
+The protocol can be found in the docs folder. The repository contains code and data to reproduce the results presented in our published paper, preprinted [here](https://www.authorea.com/users/754945/articles/724813-sharing-is-caring-international-society-of-pharmacoepidemiology-review-and-recommendations-for-sharing-of-programming-code).
 
 Previous releases of the repository contain slides and results from a preliminary presentation at ICPE 2023, in Halifax. 
 
