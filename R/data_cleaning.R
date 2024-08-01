@@ -267,7 +267,9 @@ clean_results <- clean_results %>%
       TRUE ~ "No"), 
     language_none = case_when(
       str_detect(language, '\\bNone\\b') ~ "Yes", 
-      TRUE ~ "No")) 
+      TRUE ~ "No")) %>%
+    mutate(language_none = ifelse(language_sas=="Yes", "No", language_none))
+  
 
 # countries
 clean_results <- clean_results %>% 
